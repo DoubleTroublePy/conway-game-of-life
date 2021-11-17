@@ -12,7 +12,6 @@ WINDOW_WIDTH = 700
 
 
 def n_neighbors(arr: np.ndarray, y, x) -> int:
-    neighbors = [1, 0, -1]
     neigh = 0
     for i in range(-1, 2):
         for j in range(-1, 2):
@@ -24,11 +23,10 @@ def n_neighbors(arr: np.ndarray, y, x) -> int:
     return neigh
 
 
-def frame(arr: np.ndarray) -> np.ndarray:
+def frame(arr: np.ndarray, arr2:np.ndarray) -> np.ndarray:
     for y in range(len(arr2)):
         for x in range(len(arr2)):
             neigh = n_neighbors(arr, y, x)
-            # print(neigh, end=' ')
             if arr2[y][x]:
                 if neigh < 2:
                     arr2[y][x] = 0
@@ -38,9 +36,7 @@ def frame(arr: np.ndarray) -> np.ndarray:
                     arr2[y][x] = 1
             elif neigh == 3:
                 arr2[y][x] = 1
-    # print()
     return arr2
-
 
 
 def draw_grid():
@@ -50,6 +46,7 @@ def draw_grid():
             rect = pygame.Rect(x * block_size, y * block_size,
                                block_size, block_size)
             pygame.draw.rect(SCREEN, GRAY, rect, 1)
+            draw_rectangle(x, y, WINDOW_WIDTH / len(arr), WHITE)
 
 
 def draw_rectangle(x, y, dim, color):
@@ -62,6 +59,7 @@ if __name__ == '__main__':
     dim = 50 * 50
     arr = np.array([0] * dim)
     ready = False
+    running = True
 
     # setup
     pygame.init()
@@ -71,11 +69,9 @@ if __name__ == '__main__':
     s = int(np.sqrt(arr.size))
     arr = arr.reshape(s, s)
     arr2 = arr.copy()
-    draw_grid()
 
-    while True:
-        if not ready:
-            pass
+    draw_grid()
+    while running:
         if ready:
             # game loop
             for x in range(len(arr)):
@@ -85,14 +81,13 @@ if __name__ == '__main__':
                     else:
                         draw_rectangle(x, y, WINDOW_WIDTH / len(arr), WHITE)
 
-            arr2 = frame(arr)
+            arr2 = frame(arr, arr2)
             arr = arr2.copy()
             time.sleep(.25)
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                # print('click..%d..%d' % (int((x*len(arr2))/WINDOW_HEIGHT), int((y*len(arr2))/WINDOW_WIDTH)) )
                 if arr[int((y*len(arr2))/WINDOW_HEIGHT)][int((x*len(arr2))/WINDOW_WIDTH)] == 0:
                     draw_rectangle(int((x*len(arr2))/WINDOW_HEIGHT), int((y*len(arr2))/WINDOW_WIDTH),
                                    WINDOW_WIDTH / len(arr), BLACK)
